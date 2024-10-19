@@ -1,13 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-import 'package:flutter/widgets.dart';
 import 'package:gupsup/Model/ChatroomModel.dart';
 import 'package:gupsup/Model/Firebase_helper.dart';
 import 'package:gupsup/Model/UserModel.dart';
 import 'package:gupsup/pages/Chatroom.dart';
 import 'package:gupsup/pages/SearchPage.dart';
+import 'package:gupsup/pages/keyy.dart';
 import 'package:gupsup/pages/loginpage.dart';
 
 class Home extends StatefulWidget {
@@ -29,29 +28,115 @@ class _HomeState extends State<Home> {
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: GestureDetector(
-                onTap: () async {
-                  await FirebaseAuth.instance.signOut();
-                  Navigator.popUntil(context, (route) => route.isFirst);
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const LoginPage(),
-                    ),
-                  );
-                },
-                child: const Icon(Icons.logout)),
+              onTap: () async {
+                await FirebaseAuth.instance.signOut();
+                Navigator.popUntil(context, (route) => route.isFirst);
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const LoginPage(),
+                  ),
+                );
+              },
+              child: const Icon(Icons.logout),
+            ),
           )
         ],
         backgroundColor: Theme.of(context).canvasColor,
         centerTitle: true,
         title: const Text("GupSup"),
         elevation: 100,
-        //shadowColor: Color.fromARGB(255, 179, 179, 179),
+      ),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: <Widget>[
+            UserAccountsDrawerHeader(
+              accountName: Text(widget.userModel.fullname ?? "User Name"),
+              accountEmail: Text(widget.firebaseUser.email ?? "Email"),
+              currentAccountPicture: CircleAvatar(
+                backgroundImage: NetworkImage(
+                  widget.userModel.profilepic ??
+                      "https://www.example.com/default_profile_pic.jpg",
+                ),
+              ),
+              decoration: BoxDecoration(
+                color: Colors.blue,
+              ),
+            ),
+            GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => Keyylock(),
+                  ),
+                );
+              },
+              child: ListTile(
+                leading: Icon(Icons.key),
+                title: Text("Key"),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => Keyylock(),
+                    ),
+                  );
+                  //Navigator.pop(context);
+                },
+              ),
+            ),
+            ListTile(
+              leading: Icon(Icons.account_circle),
+              title: Text("Profile"),
+              onTap: () {
+                // Add navigation to profile page here
+                // Navigator.push(
+                //   context,
+                //   // MaterialPageRoute(
+                //   //   builder: (context) =>
+                //   //       ProfilePage(), // Replace with your ProfilePage
+                //   // ),
+                // );
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.settings),
+              title: Text("Settings"),
+              onTap: () {
+                // Add navigation to settings page here
+                // Navigator.push(
+                //   context
+                //   // MaterialPageRoute(
+                //   //   builder: (context) =>
+                //   //       SettingsPage(), // Replace with your SettingsPage
+                //   // ),
+                // );
+                Navigator.pop(context);
+              },
+            ),
+            Divider(),
+            ListTile(
+              leading: Icon(Icons.exit_to_app),
+              title: Text("Logout"),
+              onTap: () async {
+                await FirebaseAuth.instance.signOut();
+                Navigator.popUntil(context, (route) => route.isFirst);
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const LoginPage(),
+                  ),
+                );
+              },
+            ),
+          ],
+        ),
       ),
       body: SafeArea(
         child: Container(
-          //decoration:BoxDecoration(image:DecorationImage(image:AssetImage('assets/pattern.jpg')  ,) ,
-
           child: StreamBuilder(
             stream: FirebaseFirestore.instance
                 .collection('chatrooms')
@@ -59,11 +144,10 @@ class _HomeState extends State<Home> {
                 .snapshots(),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.active) {
-                if (snapshot.hasData == true) {
+                if (snapshot.hasData) {
                   QuerySnapshot chatRoomSnapshot =
                       snapshot.data as QuerySnapshot;
 
-                  //therw will so many chatrooms hence we need Listview builder
                   return ListView.builder(
                     itemCount: chatRoomSnapshot.docs.length,
                     itemBuilder: (context, index) {
@@ -74,68 +158,75 @@ class _HomeState extends State<Home> {
                       Map<String, dynamic> participants =
                           chatRoomModel.participants!;
 
-                      //got both our and user key
-                      List<String> participantskeys =
+                      List<String> participantsKeys =
                           participants.keys.toList();
 
-                      participantskeys.remove(widget.userModel.uid);
-                      //print("$participantskeys[0]");
+                      participantsKeys.remove(widget.userModel.uid);
 
                       return FutureBuilder(
                         future: FirebaseHelper.getUserModelByID(
-                            participantskeys[0]),
+                            participantsKeys[0]),
                         builder: (context, userData) {
                           if (userData.connectionState ==
                               ConnectionState.done) {
                             if (userData.data != null) {
-                              UserModel targetuser = userData.data as UserModel;
+                              UserModel targetUser = userData.data as UserModel;
 
-                              return Container(
-                                margin: const EdgeInsets.symmetric(vertical: 4),
-                                padding: const EdgeInsets.all(1),
-                                child: ListTile(
-                                  onTap: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => ChatRoomPage(
-                                            targetUser: targetuser,
-                                            chatroom: chatRoomModel,
-                                            userModel: widget.userModel,
-                                            FirebaseUser: widget.firebaseUser),
+                              return GestureDetector(
+                                onTap: () {
+                                  print("Tapped on ${targetUser.fullname}");
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => ChatRoomPage(
+                                        targetUser: targetUser,
+                                        chatroom: chatRoomModel,
+                                        userModel: widget.userModel,
+                                        FirebaseUser: widget.firebaseUser,
                                       ),
-                                    );
-                                  },
-                                  autofocus: true,
-                                  isThreeLine: true,
-                                  horizontalTitleGap: 10,
-                                  title: Text(
-                                    targetuser.fullname.toString(),
-                                    style: const TextStyle(fontSize: 20),
-                                  ),
-                                  subtitle: (chatRoomModel.lastMessage
-                                              .toString() !=
-                                          "")
-                                      ? (Text(
-                                          chatRoomModel.lastMessage.toString()))
-                                      : Text(
-                                          "Say Hii ",
-                                          style: TextStyle(
-                                              color: Colors.blue[300]),
-                                        ),
-                                  leading: CircleAvatar(
-                                    radius: 30,
-                                    backgroundColor: Colors.grey,
-                                    backgroundImage: NetworkImage(
-                                        targetuser.profilepic.toString()),
+                                    ),
+                                  );
+                                },
+                                child: Container(
+                                  margin:
+                                      const EdgeInsets.symmetric(vertical: 4),
+                                  padding: const EdgeInsets.all(1),
+                                  child: ListTile(
+                                    isThreeLine: true,
+                                    title: Text(
+                                      targetUser.fullname.toString(),
+                                      style: const TextStyle(fontSize: 20),
+                                    ),
+                                    subtitle:
+                                        (chatRoomModel.lastMessage.toString() !=
+                                                "")
+                                            ? Text(chatRoomModel.lastMessage
+                                                .toString())
+                                            : Text(
+                                                "Say Hi ",
+                                                style: TextStyle(
+                                                    color: Colors.blue[300]),
+                                              ),
+                                    leading: CircleAvatar(
+                                      radius: 30,
+                                      backgroundColor: Colors.grey,
+                                      backgroundImage: NetworkImage(
+                                          targetUser.profilepic.toString()),
+                                    ),
                                   ),
                                 ),
                               );
                             } else {
-                              return Container();
+                              return Container(
+                                child: const Center(
+                                  child: Text("User not found"),
+                                ),
+                              );
                             }
                           } else {
-                            return Container();
+                            return const Center(
+                              child: CircularProgressIndicator(),
+                            );
                           }
                         },
                       );
@@ -149,17 +240,14 @@ class _HomeState extends State<Home> {
                   return const Center(child: Text("Start Search and Chat"));
                 }
               } else {
-                return const CircularProgressIndicator();
+                return const Center(child: CircularProgressIndicator());
               }
-
-              return const ListTile(); //return any widget to remove builder error
             },
           ),
         ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          //Uihelper.showLoadingDialog("Loading...", context);
           Navigator.push(
             context,
             MaterialPageRoute(

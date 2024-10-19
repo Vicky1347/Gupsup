@@ -126,7 +126,8 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                   TextField(
                     //obscureText: true,
-                    decoration: const InputDecoration(labelText: "Email Address"),
+                    decoration:
+                        const InputDecoration(labelText: "Email Address"),
                     controller: emailController,
                   ),
                   const SizedBox(

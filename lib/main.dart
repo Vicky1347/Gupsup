@@ -5,10 +5,13 @@ import 'package:gupsup/Model/Firebase_helper.dart';
 import 'package:gupsup/Model/UserModel.dart';
 import 'package:gupsup/pages/Home.dart';
 import 'package:gupsup/pages/signuppage.dart';
+import 'package:local_auth/local_auth.dart';
 import 'package:uuid/uuid.dart';
 import 'firebase_options.dart';
 
-var uuid = const Uuid(); //can be use in whole app
+var uuid = const Uuid(); // Can be used in the whole app
+
+String key = "1q2w3e4r5t";
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -22,13 +25,13 @@ void main() async {
     UserModel? thisUserModel =
         await FirebaseHelper.getUserModelByID(currentUser.uid);
     if (thisUserModel != null) {
-      runApp(MyAppLoggindIn(
+      runApp(MyAppBiometricAuth(
         firebaseUser: currentUser,
         userModel: thisUserModel,
       ));
     }
   } else {
-    //Not logged in
+    // Not logged in
     runApp(const MyApp());
   }
 }
@@ -37,7 +40,7 @@ class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
   // This widget is the root of your application.
-  //Not logged in
+  // Not logged in
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -45,39 +48,103 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         useMaterial3: true,
       ),
-      //title: 'Flutter Demo',
-      // theme: ThemeData(
-      //   colorScheme:
-      //       ColorScheme.fromSeed(seedColor: Color.fromARGB(255, 77, 117, 191)),
-      //   useMaterial3: true,
-      // ),
       home: const SignUpPage(),
     );
   }
 }
 
-//Loggg in
-class MyAppLoggindIn extends StatelessWidget {
+class MyAppBiometricAuth extends StatelessWidget {
   final UserModel userModel;
   final User firebaseUser;
 
-  const MyAppLoggindIn(
+  const MyAppBiometricAuth(
       {super.key, required this.userModel, required this.firebaseUser});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      //title: 'Flutter Demo',
       theme: ThemeData(
-          // colorScheme: ColorScheme.fromSeed(
-          //     seedColor: Colors.blue,
-          //     primary: Colors.blue[500], // Set primary color (darker shade)
-          //     secondary: Colors.teal[300]),
-          // useMaterial3: true,
+        useMaterial3: true,
+      ),
+      home: BiometricAuthScreen(
+        firebaseUser: firebaseUser,
+        userModel: userModel,
+      ),
+    );
+  }
+}
+
+class BiometricAuthScreen extends StatefulWidget {
+  final UserModel userModel;
+  final User firebaseUser;
+
+  const BiometricAuthScreen({
+    Key? key,
+    required this.userModel,
+    required this.firebaseUser,
+  }) : super(key: key);
+
+  @override
+  _BiometricAuthScreenState createState() => _BiometricAuthScreenState();
+}
+
+class _BiometricAuthScreenState extends State<BiometricAuthScreen> {
+  final LocalAuthentication auth = LocalAuthentication();
+
+  Future<void> authenticate() async {
+    try {
+      bool authenticated = await auth.authenticate(
+        localizedReason: 'Please authenticate to continue',
+        options: const AuthenticationOptions(
+          //biometricOnly: true,
+          stickyAuth: true,
+        ),
+      );
+
+      if (authenticated) {
+        // Authentication successful, navigate to the Home screen
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => Home(
+              firebaseUser: widget.firebaseUser,
+              userModel: widget.userModel,
+            ),
           ),
-      home: Home(firebaseUser: firebaseUser, userModel: userModel),
+        );
+      } else {
+        // Authentication failed
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Authentication failed')),
+        );
+      }
+    } catch (e) {
+      // Handle exception
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: $e')),
+      );
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    authenticate(); // Trigger authentication when the screen is opened
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Biometric Authentication'),
+      ),
+      body: Center(
+        child: ElevatedButton(
+          onPressed: authenticate,
+          child: const Text('Authenticate'),
+        ),
+      ),
     );
   }
 }

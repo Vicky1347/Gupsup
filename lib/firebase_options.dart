@@ -47,29 +47,30 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyC5LHUA8qhuwSwnujN9IgO2ljTv9aap9Lw',
-    appId: '1:827064956292:web:0cb57a3b5a419f10a299d1',
-    messagingSenderId: '827064956292',
-    projectId: 'gupsup-343c6',
-    authDomain: 'gupsup-343c6.firebaseapp.com',
-    storageBucket: 'gupsup-343c6.appspot.com',
-    measurementId: 'G-225M6E61WB',
+    apiKey: 'AIzaSyACdJpLxg993E910a_BGM_5OlcmQsOZ0ts',
+    appId: '1:446389074827:web:ba146aa5a780ddafb6cd8e',
+    messagingSenderId: '446389074827',
+    projectId: 'gupsup-be6b7',
+    authDomain: 'gupsup-be6b7.firebaseapp.com',
+    storageBucket: 'gupsup-be6b7.appspot.com',
+    measurementId: 'G-MZ1XJ7YSQD',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyCqobz7YE-G1ePM4OOAr0U2NMsL0wXzVKc',
-    appId: '1:827064956292:android:1aeb1e4a350e1f75a299d1',
-    messagingSenderId: '827064956292',
-    projectId: 'gupsup-343c6',
-    storageBucket: 'gupsup-343c6.appspot.com',
+    apiKey: 'AIzaSyBHc3LqR0rY6LlFZq_X90Gs5tENMBZRj1I',
+    appId: '1:446389074827:android:cf6c0250b4072532b6cd8e',
+    messagingSenderId: '446389074827',
+    projectId: 'gupsup-be6b7',
+    storageBucket: 'gupsup-be6b7.appspot.com',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyDMiyWtCgdM3KvqMEramZXkEAdy4bXlGXM',
-    appId: '1:827064956292:ios:a81e667cce8da5bca299d1',
-    messagingSenderId: '827064956292',
-    projectId: 'gupsup-343c6',
-    storageBucket: 'gupsup-343c6.appspot.com',
+    apiKey: 'AIzaSyBWuf2_FeFf3o9SCK-8UBD1l0Z4eePUZ5w',
+    appId: '1:446389074827:ios:844e6f1203b0ed4db6cd8e',
+    messagingSenderId: '446389074827',
+    projectId: 'gupsup-be6b7',
+    storageBucket: 'gupsup-be6b7.appspot.com',
     iosBundleId: 'com.example.gupsup',
   );
+
 }
